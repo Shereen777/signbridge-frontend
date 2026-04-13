@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only read/write their own profile
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Users can only access their own phrases
+      match /phrases/{phraseId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Users can only access their own custom dictionary
+      match /customWords/{wordId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
