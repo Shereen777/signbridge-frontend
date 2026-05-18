@@ -1095,11 +1095,12 @@ class SignDisplayEngine {
   // Draw a "ready" state
   drawReady() {
     const ctx = this.ctx;
-    ctx.fillStyle = '#F7F7FB';
+    const isDark = document.body && document.body.dataset.theme === 'dark';
+    ctx.fillStyle = isDark ? '#111827' : '#F8FAFC';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    ctx.fillStyle = '#8E8EA9';
-    ctx.font = '22px system-ui';
+    ctx.fillStyle = isDark ? '#E5E7EB' : '#475569';
+    ctx.font = '600 24px system-ui';
     ctx.textAlign = 'center';
     ctx.fillText('Speak or type to see', 200, 185);
     ctx.fillText('ASL signs here', 200, 215);

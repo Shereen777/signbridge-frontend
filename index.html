@@ -19,13 +19,17 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675466124/drawing_utils.min.js" crossorigin="anonymous"></script>
 </head>
-<body>
+<body data-theme="light">
   <!-- Offline indicator (hidden by default; shown when navigator.onLine === false) -->
   <div id="offline-bar" role="status" aria-live="polite" style="display:none;background:#1C1917;color:#FCD34D;text-align:center;padding:6px 12px;font-size:13px;font-weight:600;position:sticky;top:0;z-index:200;">
     You're offline — cached signs still work.
   </div>
   <!-- Auth Screen: Login / Register -->
   <div id="auth-screen" class="screen active">
+    <button class="nav-icon-btn theme-toggle-btn auth-theme-action" onclick="app.toggleTheme()" title="Switch to dark mode" aria-label="Switch to dark mode">
+      <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 12.8A8.5 8.5 0 1111.2 3 6.5 6.5 0 0021 12.8z"/></svg>
+    </button>
     <div class="landing-container">
       <div class="logo">
         <div class="logo-icon">
@@ -90,11 +94,12 @@
       <div class="nav-brand"><span>SignBridge</span></div>
       <div class="nav-user">
         <span id="user-greeting" class="nav-greeting">Hello, User</span>
+        <button class="nav-icon-btn theme-toggle-btn" onclick="app.toggleTheme()" title="Switch to dark mode" aria-label="Switch to dark mode">
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 12.8A8.5 8.5 0 1111.2 3 6.5 6.5 0 0021 12.8z"/></svg>
+        </button>
         <button class="nav-icon-btn" onclick="app.showProfile()" title="Profile">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </button>
-        <button class="nav-icon-btn" onclick="app.logout()" title="Logout">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         </button>
       </div>
     </nav>
@@ -122,16 +127,16 @@
           <div class="mode-icon">
             <svg viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="24" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="18" r="5" stroke="currentColor" stroke-width="2"/><path d="M14 36 L24 30 L34 36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           </div>
-          <h3>I Use Sign Language</h3>
-          <p>Sign to the camera — your signs become speech the other person can hear.</p>
+          <h3>Sign to Speech</h3>
+          <p>Use your camera to turn signs into spoken audio.</p>
           <span class="mode-badge">Sign → Speech</span>
         </button>
         <button class="mode-card" onclick="app.enterMode('hearing')">
           <div class="mode-icon">
             <svg viewBox="0 0 48 48" fill="none"><path d="M24 6 C24 6, 18 6, 18 14 L18 24 C18 28, 21 30, 24 30 C27 30, 30 28, 30 24 L30 14 C30 6, 24 6, 24 6Z" stroke="currentColor" stroke-width="2"/><path d="M12 22 L12 24 C12 32, 17 38, 24 38 C31 38, 36 32, 36 24 L36 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="24" y1="38" x2="24" y2="44" stroke="currentColor" stroke-width="2"/><line x1="18" y1="44" x2="30" y2="44" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           </div>
-          <h3>I Use Speech</h3>
-          <p>Speak normally — your words become sign language animations the other person can see.</p>
+          <h3>Speech to Sign</h3>
+          <p>Use your microphone or typing to turn speech into signs.</p>
           <span class="mode-badge">Speech → Sign</span>
         </button>
       </div>
@@ -176,11 +181,15 @@
   <!-- Deaf User Mode: Sign → Text → Speech -->
   <div id="deaf-screen" class="screen">
     <header class="app-header">
-      <button class="back-btn" onclick="app.goHome()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <button class="back-btn" onclick="app.goHome()" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <h1>Sign → Speech</h1>
       <div class="header-controls">
+        <button class="nav-icon-btn theme-toggle-btn" onclick="app.toggleTheme()" title="Switch to dark mode" aria-label="Switch to dark mode">
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 12.8A8.5 8.5 0 1111.2 3 6.5 6.5 0 0021 12.8z"/></svg>
+        </button>
         <select id="deaf-language" class="lang-select" title="Output speech language">
           <option value="en-US">English</option>
           <option value="es-ES">Spanish</option>
@@ -214,11 +223,6 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
             Start Camera
           </button>
-          <button id="btn-speak-text" class="btn btn-accent" onclick="app.speakRecognizedText()" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.08"/></svg>
-            Speak
-          </button>
-          <button class="btn btn-secondary" onclick="app.clearDeafText()">Clear</button>
         </div>
       </div>
 
@@ -228,6 +232,15 @@
         <div id="recognized-text" class="text-display" contenteditable="true" aria-label="Recognized sign language text">
           <span class="placeholder-text">Your signs will appear here as text...</span>
         </div>
+        <div class="output-actions" aria-label="Recognized text actions">
+          <button class="btn btn-secondary" onclick="app.clearDeafText()">Clear All</button>
+          <button class="btn btn-secondary" onclick="app.copyRecognizedText()">Copy Text</button>
+          <button id="btn-repeat-audio" class="btn btn-accent" onclick="app.speakRecognizedText()" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 105.64-8.36L1 10"/><path d="M11 9l-4 3h-3v4h3l4 3V9z"/></svg>
+            Play Audio
+          </button>
+        </div>
+        <div id="copy-msg" class="inline-msg" aria-live="polite"></div>
         <div class="text-stats">
           <span id="letter-buffer">Buffer: <strong id="buffer-content">_</strong></span>
           <span id="confidence-display">Confidence: <strong>—</strong></span>
@@ -239,11 +252,15 @@
   <!-- Hearing User Mode: Speech → Text → Sign Language -->
   <div id="hearing-screen" class="screen">
     <header class="app-header">
-      <button class="back-btn" onclick="app.goHome()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <button class="back-btn" onclick="app.goHome()" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <h1>Speech → Sign</h1>
       <div class="header-controls">
+        <button class="nav-icon-btn theme-toggle-btn" onclick="app.toggleTheme()" title="Switch to dark mode" aria-label="Switch to dark mode">
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 12.8A8.5 8.5 0 1111.2 3 6.5 6.5 0 0021 12.8z"/></svg>
+        </button>
         <select id="hearing-language" class="lang-select" title="Input speech language">
           <option value="en-US">English</option>
           <option value="es-ES">Spanish</option>
@@ -284,10 +301,6 @@
       </div>
 
       <div class="speech-input-section">
-        <h3>Spoken Text</h3>
-        <div id="spoken-text" class="text-display" aria-label="Transcribed speech">
-          <span class="placeholder-text">Your speech will appear here...</span>
-        </div>
         <div class="speech-controls">
           <button id="btn-start-mic" class="btn btn-primary mic-btn" onclick="app.toggleMic()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
@@ -303,6 +316,10 @@
             </button>
           </div>
         </div>
+        <h3>Spoken Text</h3>
+        <div id="spoken-text" class="text-display" aria-label="Transcribed speech">
+          <span class="placeholder-text">Your speech will appear here...</span>
+        </div>
       </div>
     </div>
   </div>
@@ -310,11 +327,14 @@
   <!-- Profile Screen -->
   <div id="profile-screen" class="screen">
     <header class="app-header">
-      <button class="back-btn" onclick="app.goHome()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <button class="back-btn" onclick="app.goHome()" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <h1>My Profile</h1>
-      <div></div>
+      <button class="nav-icon-btn theme-toggle-btn" onclick="app.toggleTheme()" title="Switch to dark mode" aria-label="Switch to dark mode">
+        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M21 12.8A8.5 8.5 0 1111.2 3 6.5 6.5 0 0021 12.8z"/></svg>
+      </button>
     </header>
 
     <div class="profile-layout">
@@ -339,18 +359,6 @@
         </div>
 
         <div class="profile-card">
-          <h3>Change Password</h3>
-          <div class="form-group">
-            <input type="password" id="new-password" class="text-input" placeholder="New password (min 6 characters)" />
-          </div>
-          <div class="form-group">
-            <input type="password" id="confirm-password" class="text-input" placeholder="Confirm new password" />
-          </div>
-          <button class="btn btn-primary" onclick="app.changePassword()">Update Password</button>
-          <div id="password-msg" class="auth-error"></div>
-        </div>
-
-        <div class="profile-card">
           <h3>Settings</h3>
           <div class="form-group">
             <label class="profile-label">Preferred Language</label>
@@ -370,6 +378,26 @@
               <option value="ru-RU">Russian</option>
               <option value="tr-TR">Turkish</option>
             </select>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <h3>Change Password</h3>
+          <div class="form-group">
+            <input type="password" id="new-password" class="text-input" placeholder="New password (min 6 characters)" />
+          </div>
+          <div class="form-group">
+            <input type="password" id="confirm-password" class="text-input" placeholder="Confirm new password" />
+          </div>
+          <button class="btn btn-primary" onclick="app.changePassword()">Update Password</button>
+          <div id="password-msg" class="auth-error"></div>
+        </div>
+
+        <div class="profile-card profile-actions-card">
+          <h3>Account Actions</h3>
+          <div class="profile-action-buttons">
+            <button class="btn btn-secondary btn-full" onclick="app.switchAccount()">Switch Account</button>
+            <button class="btn btn-primary btn-full" onclick="app.logout()">Log Out</button>
           </div>
         </div>
       </div>

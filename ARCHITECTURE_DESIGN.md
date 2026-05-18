@@ -1,11 +1,7 @@
-# Assignment 3 — Architecture and Design
+#  Architecture and Design
 
 ## Project: SignBridge — Real-Time Bidirectional Sign Language Communication System
 
-**Course:** Software Engineering
-**Submission Date:** May 5, 2026
-
----
 
 ## 1. Introduction
 

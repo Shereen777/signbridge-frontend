@@ -11,6 +11,7 @@ const app = {
   user: null,
   userProfile: null,
   suggestionDebounce: null,
+  theme: 'light',
 
   // Flask backend URL — update once deployed to Render
   // If empty, the app skips personalization gracefully
@@ -31,6 +32,8 @@ const app = {
 
   // ===== Init =====
   init() {
+    this.initTheme();
+
     // Listen for Firebase auth state changes
     AuthService.onAuthChange(async (user) => {
       if (user) {
@@ -58,8 +61,53 @@ const app = {
     this.getEl('login-password').onkeydown = (e) => { if (e.key === 'Enter') this.login(); };
     this.getEl('reg-password').onkeydown = (e) => { if (e.key === 'Enter') this.register(); };
 
+    const recognizedTextEl = this.getEl('recognized-text');
+    if (recognizedTextEl) {
+      recognizedTextEl.addEventListener('focus', () => {
+        if (recognizedTextEl.querySelector('.placeholder-text')) {
+          recognizedTextEl.textContent = '';
+        }
+      });
+
+      recognizedTextEl.addEventListener('input', () => {
+        const text = this.getOutputText('recognized-text', 'Your signs will appear');
+        this.recognizedText = text;
+        this.setDeafActionState(Boolean(text));
+      });
+
+      recognizedTextEl.addEventListener('blur', () => {
+        const text = this.getOutputText('recognized-text', 'Your signs will appear');
+        if (!text) this.updateRecognizedText();
+      });
+    }
+
     // Offline / online indicator
     this.setupOfflineIndicator();
+  },
+
+  initTheme() {
+    const savedTheme = localStorage.getItem('signbridge-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    this.applyTheme();
+  },
+
+  toggleTheme() {
+    this.theme = this.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('signbridge-theme', this.theme);
+    this.applyTheme();
+  },
+
+  applyTheme() {
+    document.body.dataset.theme = this.theme;
+    const isDark = this.theme === 'dark';
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) metaTheme.setAttribute('content', isDark ? '#0F1115' : '#C41E2A');
+    document.querySelectorAll('.theme-toggle-btn').forEach((button) => {
+      const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+      button.title = label;
+      button.setAttribute('aria-label', label);
+    });
   },
 
   setupOfflineIndicator() {
@@ -175,6 +223,12 @@ const app = {
     await AuthService.logout();
     this.getEl('login-username').value = '';
     this.getEl('login-password').value = '';
+  },
+
+  async switchAccount() {
+    await this.logout();
+    this.showLogin();
+    this.getEl('login-username').focus();
   },
 
   showLanding() {
@@ -393,7 +447,7 @@ const app = {
       if (this.recognizedText && !this.recognizedText.endsWith(' ')) this.recognizedText += ' ';
       this.recognizedText += phrase;
       this.updateRecognizedText();
-      this.getEl('btn-speak-text').disabled = false;
+      this.setDeafActionState(true);
     } else if (targetId === 'typing-suggestions') {
       this.getEl('manual-text-input').value = phrase;
       this.convertTextToSign();
@@ -457,7 +511,7 @@ const app = {
         if (this.recognizedText.length > 0 && !this.recognizedText.endsWith(' ')) this.recognizedText += ' ';
         this.recognizedText += word;
         this.updateRecognizedText();
-        this.getEl('btn-speak-text').disabled = false;
+        this.setDeafActionState(true);
 
         const badge = this.getEl('current-letter');
         badge.textContent = word;
@@ -471,7 +525,7 @@ const app = {
       this.signRecognition.onLetterDetected = (letter, confidence) => {
         this.recognizedText += letter === ' ' ? ' ' : letter;
         this.updateRecognizedText();
-        this.getEl('btn-speak-text').disabled = false;
+        this.setDeafActionState(true);
 
         const badge = this.getEl('current-letter');
         badge.textContent = letter === ' ' ? '␣' : letter;
@@ -506,15 +560,27 @@ const app = {
     } else {
       el.textContent = this.recognizedText;
     }
+    this.setDeafActionState(Boolean(this.recognizedText.trim()));
     const bufferEl = this.getEl('buffer-content');
     bufferEl.textContent = (this.signRecognition && this.signRecognition.currentCandidate) || '_';
   },
 
+  setDeafActionState(hasText) {
+    const repeatBtn = this.getEl('btn-repeat-audio');
+    if (repeatBtn) repeatBtn.disabled = !hasText;
+  },
+
+  getOutputText(id, placeholderNeedle) {
+    const el = this.getEl(id);
+    const text = (el && el.textContent ? el.textContent : '').trim();
+    if (!text || (placeholderNeedle && text.includes(placeholderNeedle))) return '';
+    return text;
+  },
+
   async speakRecognizedText() {
     const lang = this.getEl('deaf-language').value;
-    const el = this.getEl('recognized-text');
-    const text = el.textContent || this.recognizedText;
-    if (!text || text.includes('Your signs will appear')) return;
+    const text = this.getOutputText('recognized-text', 'Your signs will appear') || this.recognizedText.trim();
+    if (!text) return;
 
     // Translate English sign text to the selected language before speaking
     let spokenText = text;
@@ -525,11 +591,42 @@ const app = {
     this.savePhrase(text.trim(), 'sign_to_speech');
   },
 
+  async copyRecognizedText() {
+    const text = this.getOutputText('recognized-text', 'Your signs will appear');
+    const msgEl = this.getEl('copy-msg');
+    if (!text) {
+      msgEl.textContent = 'Nothing to copy';
+      return;
+    }
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      msgEl.textContent = 'Copied';
+      setTimeout(() => { if (msgEl.textContent === 'Copied') msgEl.textContent = ''; }, 1600);
+    } catch (e) {
+      msgEl.textContent = 'Copy failed';
+    }
+  },
+
   clearDeafText() {
     this.recognizedText = '';
     this.updateRecognizedText();
-    this.getEl('btn-speak-text').disabled = true;
+    this.setDeafActionState(false);
     this.getEl('confidence-display').innerHTML = 'Confidence: <strong>—</strong>';
+    const msgEl = this.getEl('copy-msg');
+    if (msgEl) msgEl.textContent = '';
   },
 
   resetDeafUI() {
