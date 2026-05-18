@@ -1,0 +1,10 @@
+name = "signbridge-translator"
+main = "translator-worker.js"
+compatibility_date = "2026-05-01"
+
+# Workers KV binding for cache + rate limit
+[[kv_namespaces]]
+binding = "TRANSLATIONS"
+# Run: wrangler kv:namespace create TRANSLATIONS
+# Then paste the id here:
+id = ""

@@ -1,0 +1,27 @@
+{
+  "name": "SignBridge — Sign Language ↔ Speech",
+  "short_name": "SignBridge",
+  "description": "Real-time bidirectional translator between American Sign Language and 14 spoken languages, designed for accessible communication between deaf and hearing users.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#C41E2A",
+  "theme_color": "#C41E2A",
+  "lang": "en",
+  "categories": ["accessibility", "communication", "education"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
